@@ -1,0 +1,11 @@
+author: "Tobe O <thosakwe@gmail.com>"
+description: "Soy templates for Dart. ;)"
+homepage: "https://github.com/thosakwe/dart_soy.git"
+name: "soy"
+version: "0.0.0"
+dependencies: 
+  source_maps: "^0.10.2"
+  source_span: "^1.3.0"
+  string_scanner: "^1.0.1"
+dev_dependencies: 
+  test: "^0.12.18"
