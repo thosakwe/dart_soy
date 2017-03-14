@@ -50,7 +50,7 @@ class Parser extends BaseParser<TokenType> {
   }
 
   NodeContextMember parseNodeContextMember() =>
-      parseNode() ?? (parseText() ?? null);
+      parseParameter() ?? (parseNode() ?? (parseText() ?? null));
 
   NodeContext parseNode() {
     var openingTag = parseOpeningTag();
@@ -68,17 +68,58 @@ class Parser extends BaseParser<TokenType> {
           member = parseNodeContextMember();
         }
 
+        int snapshot = tokens.indexOf(current);
         var closingTag = parseClosingTag();
         if (closingTag != null) {
           if (closingTag.tagName == openingTag.tagName) {
             return new NodeContext(openingTag, closingTag)
               ..members.addAll(members);
+          } else if (members.isEmpty) {
+            return new ReferencedDataContext(openingTag);
           } else
             throw error(
                 'Missing a closing tag for node with tag name "${openingTag.tagName}". You tried ending it with a "${closingTag.tagName}".');
+        } else {
+          // This is referenced data, ONLY if members are empty
+          if (members.isEmpty) {
+            // Backtrack the whole closing tag
+            var rewind = tokens.indexOf(current) - snapshot;
+            backtrack(rewind);
+            return new ReferencedDataContext(openingTag);
+          } else
+            throw error(
+                'Node with tag name "${openingTag.tagName}" was left open.');
+        }
+      }
+    } else
+      return null;
+  }
+
+  ParameterSpecificationContext parseParameter() {
+    if (next(TokenType.LBRACE)) {
+      var lbrace = current;
+      if (next(TokenType.PARAM)) {
+        var param = current;
+        var identifier = parseSimpleIdentifier();
+        if (identifier != null) {
+          if (next(TokenType.COLON)) {
+            var colon = current;
+            var type = parseSimpleIdentifier();
+            if (type != null) {
+              if (next(TokenType.RBRACE)) {
+                return new ParameterSpecificationContext(
+                    lbrace, param, identifier, colon, current, type);
+              } else
+                throw expectedType(TokenType.RBRACE);
+            } else
+              throw expectedType(TokenType.ID);
+          } else
+            throw expectedType(TokenType.COLON);
         } else
-          throw error(
-              'Node with tag name "${openingTag.tagName}" was left open.');
+          throw expectedType(TokenType.ID);
+      } else {
+        backtrack();
+        return null;
       }
     } else
       return null;
@@ -109,8 +150,10 @@ class Parser extends BaseParser<TokenType> {
         // This is a closing tag, backtrack
         backtrack();
         return null;
-      } else
+      } else {
+        print('Poop: ${peek()}');
         throw expectedType(TokenType.ID);
+      }
     } else
       return null;
   }

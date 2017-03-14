@@ -2,18 +2,20 @@ import 'package:compiler_tools/compiler_tools.dart';
 import 'package:string_scanner/string_scanner.dart';
 import 'token_type.dart';
 
-final RegExp _id = new RegExp(r'([A-Za-z_]|$)([A-Za-z0-9_]|$)*');
+final RegExp _id = new RegExp(r'([A-Za-z0-9_]|\$)([A-Za-z0-9_]|\$)*');
 final RegExp _whitespace = new RegExp(r'( |\r\n\t)+');
+final RegExp IDENTIFIER = new RegExp(r'([A-Za-z_]|$)([A-Za-z0-9_]|$)*');
 final RegExp SOY_COMMENT = new RegExp(r'\/\*(\w|\W)*\*\/');
 
 final Map<Pattern, TokenType> _PATTERNS = {
   ':': TokenType.COLON,
-  r'$': TokenType.DOLLAR,
+  // r'$': TokenType.DOLLAR,
   '.': TokenType.DOT,
   '=': TokenType.EQUALS,
   '{': TokenType.LBRACE,
   '}': TokenType.RBRACE,
   '/': TokenType.SLASH,
+  new RegExp(r'\@param\??'): TokenType.PARAM,
   new RegExp(r'[0-9]+(\.[0-9]+)?'): TokenType.NUMBER,
   new RegExp(r'"((\\")|([^"\n]))*"'): TokenType.STRING,
   new RegExp(r"'((\\')|([^'\n]))*'"): TokenType.STRING
@@ -66,7 +68,10 @@ List<Token<TokenType>> scan(String text, {sourceUrl}) {
       scanner.readChar();
     } else {
       flushBuffer();
-      potential.sort((a, b) => a.text.length.compareTo(b.text.length));
+
+      if (potential.length > 1)
+        potential.sort((a, b) => a.text.length.compareTo(b.text.length));
+
       var token = potential.first;
       tokens.add(token);
       scanner.scan(token.text);

@@ -15,3 +15,7 @@ class NodeContext extends NodeContextMember {
 
   String get tagName => openingTag.tagName;
 }
+
+class ReferencedDataContext extends NodeContext {
+  ReferencedDataContext(TagContext openingTag) : super(openingTag);
+}

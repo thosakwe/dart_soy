@@ -36,4 +36,20 @@ main() {
     expect(node.members.take(2), everyElement(new isInstanceOf<soy.NodeContext>()));
     expect(node.members.last, new isInstanceOf<soy.TextContext>());
   });
+
+  test('referenced data', () {
+    var parser = makeParser(r'{foo}{$bar.baz}{/foo}');
+    var node = parser.parseNode();
+    expect(node.openingTag, isNotNull);
+    expect(node.closingTag, isNotNull);
+    expect(node.tagName, equals('foo'));
+    expect(node.members, hasLength(1));
+    expect(node.members.first, new isInstanceOf<soy.ReferencedDataContext>());
+
+    var ref = node.members.first as soy.ReferencedDataContext;
+    expect(ref.openingTag, isNotNull);
+    expect(ref.closingTag, isNull);
+    expect(ref.members, isEmpty);
+    expect(ref.text, equals(r'$bar.baz'));
+  });
 }

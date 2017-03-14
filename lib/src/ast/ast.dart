@@ -1,9 +1,11 @@
 export 'attribute.dart';
 export 'class.dart';
 export 'id.dart';
+export 'interpolation.dart';
 export 'namespace.dart';
 export 'node_member.dart';
 export 'node.dart';
+export 'param.dart';
 export 'string.dart';
 export 'tag_member.dart';
 export 'tag.dart';
