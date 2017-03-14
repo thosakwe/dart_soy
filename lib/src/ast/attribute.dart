@@ -1,5 +1,4 @@
 import 'package:compiler_tools/compiler_tools.dart';
-import 'package:source_span/source_span.dart';
 import '../text/token_type.dart';
 import 'id.dart';
 import 'string.dart';
@@ -12,7 +11,8 @@ class AttributeContext extends TagContextMember {
 
   AttributeContext(this.identifier, this.EQUALS, this.string);
 
-  SourceSpan get span => identifier.span.union(string.span);
+  @override
+  String get text => '$name="$value"';
 
   String get name => identifier.text;
   String get value => string.stringValue;

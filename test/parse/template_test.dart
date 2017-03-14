@@ -11,6 +11,7 @@ main() {
     ''');
     var template = parser.parseTemplate();
     expect(template.namespace.name, equals('foo'));
-    expect(template.rootNode.tagName, equals('foo'));
+    expect(template.nodes, hasLength(1));
+    expect(template.nodes.first.tagName, equals('foo'));
   });
 }

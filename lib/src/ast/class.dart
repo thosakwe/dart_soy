@@ -1,7 +1,6 @@
 import 'package:compiler_tools/compiler_tools.dart';
 import '../text/token_type.dart';
 import 'id.dart';
-import 'package:source_span/src/span.dart';
 import 'tag_member.dart';
 
 class ClassContext extends TagContextMember {
@@ -11,7 +10,7 @@ class ClassContext extends TagContextMember {
   ClassContext(this.DOT, this.identifier);
 
   @override
-  SourceSpan get span => DOT.span.union(identifier.span);
+  String get text => '.$name';
 
   String get name => identifier.name;
 }

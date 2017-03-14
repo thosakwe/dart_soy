@@ -1,14 +1,13 @@
 import 'ast_node.dart';
 import 'namespace.dart';
 import 'node.dart';
-import 'package:source_span/src/span.dart';
 
 class TemplateContext extends AstNode {
   final NamespaceDeclarationContext namespace;
-  final NodeContext rootNode;
+  final List<NodeContext> nodes = [];
 
-  TemplateContext(this.namespace, this.rootNode);
+  TemplateContext(this.namespace);
 
   @override
-  SourceSpan get span => namespace.span.union(rootNode.span);
+  String get text => namespace.text + nodes.map((node) => node.text).join();
 }

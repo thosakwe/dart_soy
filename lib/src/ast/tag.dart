@@ -1,5 +1,4 @@
 import 'package:compiler_tools/compiler_tools.dart';
-import 'package:source_span/source_span.dart';
 import '../text/token_type.dart';
 import 'ast_node.dart';
 import 'id.dart';
@@ -13,7 +12,21 @@ class TagContext extends AstNode {
   TagContext(this.LBRACE, this.identifier, this.RBRACE, [this.SLASH]);
 
   @override
-  SourceSpan get span => LBRACE.span.union(RBRACE.span);
+  String get text {
+    if (SLASH != null && members.isEmpty) {
+      return '{/$tagName}';
+    } else {
+      var buf = new StringBuffer('{$tagName');
+
+      for (var member in members) {
+        buf.write(' ${member.text}');
+      }
+
+      if (SLASH != null) buf.write('/');
+
+      return buf.toString() + '}';
+    }
+  }
 
   String get tagName => identifier.name;
 }

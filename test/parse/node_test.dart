@@ -38,18 +38,18 @@ main() {
   });
 
   test('referenced data', () {
-    var parser = makeParser(r'{foo}{$bar.baz}{/foo}');
+    var parser = makeParser(r'{artist}{$michael.jackson}{/artist}');
     var node = parser.parseNode();
     expect(node.openingTag, isNotNull);
     expect(node.closingTag, isNotNull);
-    expect(node.tagName, equals('foo'));
+    expect(node.tagName, equals('artist'));
     expect(node.members, hasLength(1));
-    expect(node.members.first, new isInstanceOf<soy.ReferencedDataContext>());
+    expect(node.members.first, new isInstanceOf<soy.InterpolationContext>());
 
-    var ref = node.members.first as soy.ReferencedDataContext;
+    var ref = node.members.first as soy.InterpolationContext;
     expect(ref.openingTag, isNotNull);
     expect(ref.closingTag, isNull);
     expect(ref.members, isEmpty);
-    expect(ref.text, equals(r'$bar.baz'));
+    expect(ref.tagName, equals(r'$michael.jackson'));
   });
 }

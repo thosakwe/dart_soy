@@ -1,7 +1,6 @@
 export 'attribute.dart';
 export 'class.dart';
 export 'id.dart';
-export 'interpolation.dart';
 export 'namespace.dart';
 export 'node_member.dart';
 export 'node.dart';

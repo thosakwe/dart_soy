@@ -2,7 +2,6 @@ import 'package:compiler_tools/compiler_tools.dart';
 import '../text/token_type.dart';
 import 'id.dart';
 import 'node_member.dart';
-import 'package:source_span/src/span.dart';
 
 class ParameterSpecificationContext extends NodeContextMember {
   final Token<TokenType> LBRACE, PARAM, COLON, RBRACE;
@@ -12,7 +11,7 @@ class ParameterSpecificationContext extends NodeContextMember {
       this.COLON, this.RBRACE, this.type);
 
   @override
-  SourceSpan get span => LBRACE.span.union(RBRACE.span);
+  String get text => '{${PARAM.text} $name: ${type.name}}';
 
   String get name => identifier.text;
 

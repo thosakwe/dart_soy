@@ -2,9 +2,8 @@ import 'package:compiler_tools/compiler_tools.dart';
 import 'package:string_scanner/string_scanner.dart';
 import 'token_type.dart';
 
-final RegExp _id = new RegExp(r'([A-Za-z0-9_]|\$)([A-Za-z0-9_]|\$)*');
+final RegExp _id = new RegExp(r'([A-Za-z0-9_]|\$)+');
 final RegExp _whitespace = new RegExp(r'( |\r\n\t)+');
-final RegExp IDENTIFIER = new RegExp(r'([A-Za-z_]|$)([A-Za-z0-9_]|$)*');
 final RegExp SOY_COMMENT = new RegExp(r'\/\*(\w|\W)*\*\/');
 
 final Map<Pattern, TokenType> _PATTERNS = {

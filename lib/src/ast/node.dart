@@ -1,5 +1,4 @@
 import 'node_member.dart';
-import 'package:source_span/src/span.dart';
 import 'tag.dart';
 
 class NodeContext extends NodeContextMember {
@@ -8,14 +7,24 @@ class NodeContext extends NodeContextMember {
 
   NodeContext(this.openingTag, [this.closingTag]);
 
-  @override
-  SourceSpan get span => closingTag == null
-      ? openingTag.span
-      : openingTag.span.union(closingTag.span);
+  String get text {
+    var buf = new StringBuffer();
+    buf.write(openingTag.text);
+
+    if (closingTag != null) {
+      members.forEach((member) => buf.write(member.text));
+      buf.write(closingTag.text);
+    }
+
+    return buf.toString();
+  }
 
   String get tagName => openingTag.tagName;
 }
 
-class ReferencedDataContext extends NodeContext {
-  ReferencedDataContext(TagContext openingTag) : super(openingTag);
+class InterpolationContext extends NodeContext {
+  InterpolationContext(TagContext openingTag) : super(openingTag);
+
+  @override
+  String get text => openingTag.text;
 }

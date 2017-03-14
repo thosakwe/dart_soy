@@ -6,13 +6,17 @@ class Parser extends BaseParser<TokenType> {
   Parser(List<Token<TokenType>> tokens) : super(tokens);
 
   TemplateContext parseTemplate() {
-    var namespaceDeclaration = parseNamespaceDeclaration();
-    if (namespaceDeclaration != null) {
-      var rootNode = parseNode();
-      if (rootNode != null) {
-        return new TemplateContext(namespaceDeclaration, rootNode);
-      } else
-        throw error('Expected a root node.');
+    var namespace = parseNamespaceDeclaration();
+    if (namespace != null) {
+      List<NodeContext> nodes = [];
+      var node = parseNode();
+
+      while (node != null) {
+        nodes.add(node);
+        node = parseNode();
+      }
+
+      return new TemplateContext(namespace)..nodes.addAll(nodes);
     } else
       return null;
   }
@@ -56,6 +60,10 @@ class Parser extends BaseParser<TokenType> {
     var openingTag = parseOpeningTag();
 
     if (openingTag != null) {
+      if (openingTag.tagName.startsWith(r'$')) {
+        return new InterpolationContext(openingTag);
+      }
+
       if (openingTag.SLASH != null) {
         // Self-closing
         return new NodeContext(openingTag);
@@ -68,28 +76,17 @@ class Parser extends BaseParser<TokenType> {
           member = parseNodeContextMember();
         }
 
-        int snapshot = tokens.indexOf(current);
         var closingTag = parseClosingTag();
         if (closingTag != null) {
           if (closingTag.tagName == openingTag.tagName) {
             return new NodeContext(openingTag, closingTag)
               ..members.addAll(members);
-          } else if (members.isEmpty) {
-            return new ReferencedDataContext(openingTag);
           } else
             throw error(
                 'Missing a closing tag for node with tag name "${openingTag.tagName}". You tried ending it with a "${closingTag.tagName}".');
-        } else {
-          // This is referenced data, ONLY if members are empty
-          if (members.isEmpty) {
-            // Backtrack the whole closing tag
-            var rewind = tokens.indexOf(current) - snapshot;
-            backtrack(rewind);
-            return new ReferencedDataContext(openingTag);
-          } else
-            throw error(
-                'Node with tag name "${openingTag.tagName}" was left open.');
-        }
+        } else
+          throw error(
+              'Node with tag name "${openingTag.tagName}" was left open.');
       }
     } else
       return null;
@@ -128,8 +125,8 @@ class Parser extends BaseParser<TokenType> {
   TagContext parseOpeningTag() {
     if (next(TokenType.LBRACE)) {
       var lbrace = current;
-      if (next(TokenType.ID)) {
-        var identifier = new IdentifierContext(current);
+      var identifier = parseIdentifier();
+      if (identifier != null) {
         List<TagContextMember> members = [];
         TagContextMember member = parseTagContextMember();
 
