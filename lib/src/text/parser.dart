@@ -12,7 +12,7 @@ class Parser extends BaseParser<TokenType> {
       if (rootNode != null) {
         return new TemplateContext(namespaceDeclaration, rootNode);
       } else
-        throw error('Expected a root tag.');
+        throw error('Expected a root node.');
     } else
       return null;
   }
@@ -23,6 +23,10 @@ class Parser extends BaseParser<TokenType> {
       if (next(TokenType.ID)) {
         var identifier = new IdentifierContext(current);
         if (identifier.name == 'namespace') {
+          identifier = parseIdentifier();
+
+          if (identifier == null) throw expectedType(TokenType.ID);
+
           List<TagContextMember> members = [];
           TagContextMember member = parseTagContextMember();
 
@@ -65,14 +69,13 @@ class Parser extends BaseParser<TokenType> {
         }
 
         var closingTag = parseClosingTag();
-
         if (closingTag != null) {
           if (closingTag.tagName == openingTag.tagName) {
             return new NodeContext(openingTag, closingTag)
               ..members.addAll(members);
           } else
             throw error(
-                'Missing a closing tag for node with tag name "${openingTag.tagName}". You tried ending it with a "${openingTag.tagName}".');
+                'Missing a closing tag for node with tag name "${openingTag.tagName}". You tried ending it with a "${closingTag.tagName}".');
         } else
           throw error(
               'Node with tag name "${openingTag.tagName}" was left open.');
@@ -102,6 +105,10 @@ class Parser extends BaseParser<TokenType> {
             ..members.addAll(members);
         } else
           throw expectedType(TokenType.RBRACE);
+      } else if (peek()?.type == TokenType.SLASH) {
+        // This is a closing tag, backtrack
+        backtrack();
+        return null;
       } else
         throw expectedType(TokenType.ID);
     } else
@@ -168,7 +175,8 @@ class Parser extends BaseParser<TokenType> {
         var child = parseSimpleIdentifier();
         if (child != null) {
           result = new IdentifierMemberContext(result, dot, child.ID);
-        } else throw expectedType(TokenType.ID);
+        } else
+          throw expectedType(TokenType.ID);
       }
 
       return result;

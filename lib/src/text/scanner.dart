@@ -4,6 +4,7 @@ import 'token_type.dart';
 
 final RegExp _id = new RegExp(r'([A-Za-z_]|$)([A-Za-z0-9_]|$)*');
 final RegExp _whitespace = new RegExp(r'( |\r\n\t)+');
+final RegExp SOY_COMMENT = new RegExp(r'\/\*(\w|\W)*\*\/');
 
 final Map<Pattern, TokenType> _PATTERNS = {
   ':': TokenType.COLON,
@@ -38,6 +39,7 @@ List<Token<TokenType>> scan(String text, {sourceUrl}) {
   while (!scanner.isDone) {
     List<Token> potential = [];
 
+    if (scanner.scan(SOY_COMMENT)) continue;
     if (bufState == null && scanner.scan(_whitespace)) continue;
 
     _PATTERNS.forEach((pattern, type) {

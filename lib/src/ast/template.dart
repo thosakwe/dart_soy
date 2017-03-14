@@ -4,11 +4,11 @@ import 'node.dart';
 import 'package:source_span/src/span.dart';
 
 class TemplateContext extends AstNode {
-  final NamespaceDeclarationContext namespaceDeclaration;
+  final NamespaceDeclarationContext namespace;
   final NodeContext rootNode;
 
-  TemplateContext(this.namespaceDeclaration, this.rootNode);
+  TemplateContext(this.namespace, this.rootNode);
 
   @override
-  SourceSpan get span => namespaceDeclaration.span.union(rootNode.span);
+  SourceSpan get span => namespace.span.union(rootNode.span);
 }
